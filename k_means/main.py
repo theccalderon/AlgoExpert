@@ -30,9 +30,8 @@ def get_k_means(user_feature_map, num_features_per_user, k):
 
     iterations = 0
     # average_changed = False
-    #run at least 10 iterations and if the averages have changed
+    #run at least 10 iterations
     while iterations < 10:
-        # print(iterations)
         #iterate over user features
         for user, feature_map in user_feature_map.items():
             distances = {}
@@ -57,8 +56,9 @@ def get_k_means(user_feature_map, num_features_per_user, k):
             # check if the average_features haven't changed, and if they haven't then stop
             keys = list(c.closest_users)
             average_features = features_mean([user_feature_map[x] for x in keys])
-            if c.location != average_features:
-                c.location = average_features
+            # print(average_features)
+            c.location = average_features
+            c.closest_users.clear()
         iterations = iterations + 1
     return [centroid.location for centroid in centroids]
 

@@ -26,7 +26,7 @@ def get_k_means(user_feature_map, num_features_per_user, k):
 
     centroids = [Centroid(user_feature_map[i]) for i in inital_centroid_users]
 
-    average_features = [float(100) for x in range(num_features_per_user)]
+    average_features1 = [float(100) for x in range(num_features_per_user)]
 
     iterations = 0
     # average_changed = False

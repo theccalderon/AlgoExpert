@@ -33,14 +33,17 @@ class TreeNode:
             if len(possible_split_value_for_current_feature) == 0:
                 # can't split anymore
                 return
-            # calculate mse per split and store in dict = {split_value}
+            # calculate mse per split and store in dict = {split_value: mse}
             mse_per_split_value_for_current_feature = {
                 split_value_for_current_feature: self.__get_mse_per_split(split_value_for_current_feature, feature)
                 for split_value_for_current_feature in possible_split_value_for_current_feature
             }
+
+            # get the min mse
             sorted_mse_per_split_point_for_current_feature = sorted(mse_per_split_value_for_current_feature.items(),
                                                                     key=lambda x: x[1])
 
+            # set the splitting criteria based on min mse
             if sorted_mse_per_split_point_for_current_feature[0][1] < min_mse:
                 min_mse = sorted_mse_per_split_point_for_current_feature[0][1]
                 final_split_feature = feature

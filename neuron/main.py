@@ -71,7 +71,7 @@ def round_to_4(number):
     return round(number, 4)
 
 
-def is_number(element):
+def is_number(element):a
     return type(element) in (int, float)
 
 

@@ -1,3 +1,4 @@
+import math
 import unittest
 
 import numpy as np
@@ -17,8 +18,47 @@ class Neuron:
     # Use the sigmoid activation function.
     # Use the defaults for the function arguments.
     def train(self, learning_rate=0.01, batch_size=10, epochs=200):
-        # Write your code here.
-        pass
+        # TODO: do it manually instead of using numpy.
+
+        # create some matrixes
+        features_matrix = np.matrix([example["features"] for example in self.examples])
+        labels_matrix = np.matrix([example["label"] for example in self.examples]).T
+        # add bias
+        features_matrix = np.insert(features_matrix, 3, 0, axis=1)
+
+        # We got to go through all epochs
+        for epoch in range(epochs):
+            # For each epoch, grab random the minibatch
+            previous_index = 0
+            next_index = batch_size
+            while next_index <= len(self.examples):
+                np.random.shuffle(features_matrix)
+                np.random.shuffle(labels_matrix)
+                features_mb = features_matrix[previous_index:next_index]
+                labels_mb = labels_matrix[previous_index:next_index]
+                previous_index += batch_size
+                next_index += batch_size
+                # Multiply features x weighs
+                matrix_mult = features_mb @ self.weights
+
+                output = self.sigmoid(matrix_mult)
+                # Calculate loss function
+                loss = self.cross_entropy(output, labels_mb.T)
+                print("Loss for epoch "+str(epoch)+": "+str(loss))
+
+                #calculate the gradients based on loss:
+
+
+
+
+    @staticmethod
+    def sigmoid(value):
+        return 1/(1 + np.exp(-value))
+
+    @staticmethod
+    def cross_entropy(y_hat, y):
+        fp = y @ np.log(y_hat.T) + (1 - y_hat)
+        return fp @ np.log(1 - y_hat).T
 
     # Return the probability—not the corresponding 0 or 1 label.
     def predict(self, features):
@@ -35,44 +75,42 @@ class TestingCases(unittest.TestCase):
     def test_case_1(self):
         expected = 0.1636
         actual = self.neuron.predict([0.79, 0.89, 0.777])
-        self.assertEqual(round_to_4(actual), expected)
+        self.assertEqual(self.__round_to_4(actual), expected)
 
     def test_case_2(self):
         expected = 0.1551
         actual = self.neuron.predict([0.8066217554804018, 0.863578574493143, 0.8610858626987106])
-        self.assertEqual(round_to_4(actual), expected)
+        self.assertEqual(self.__round_to_4(actual), expected)
 
     def test_case_3(self):
         expected = 0.331
         actual = self.neuron.predict([0.7, 0.6, 0.5])
-        self.assertEqual(round_to_4(actual), expected)
+        self.assertEqual(self.__round_to_4(actual), expected)
 
     def test_case_4(self):
         expected = 0.7287
         actual = self.neuron.predict([0.1, 0.2, 0.3])
-        self.assertEqual(round_to_4(actual), expected)
+        self.assertEqual(self.__round_to_4(actual), expected)
 
     def test_case_5(self):
         expected = 0.64
         actual = self.neuron.predict([0.2, 0.3, 0.4])
-        self.assertEqual(round_to_4(actual), expected)
+        self.assertEqual(self.__round_to_4(actual), expected)
 
     def test_case_6(self):
         expected = 0.9684
         actual = self.neuron.predict([-0.3, -0.4, -0.5])
-        self.assertEqual(round_to_4(actual), expected)
+        self.assertEqual(self.__round_to_4(actual), expected)
 
+    def __round_to_4(self, number):
+        if not self.__is_number(number):
+            # Bad output; let tests fail.
+            return number
 
-def round_to_4(number):
-    if not is_number(number):
-        # Bad output; let tests fail.
-        return number
+        return round(number, 4)
 
-    return round(number, 4)
-
-
-def is_number(element):
-    return type(element) in (int, float)
+    def __is_number(self, element):
+        return type(element) in (int, float)
 
 
 if __name__ == '__main__':

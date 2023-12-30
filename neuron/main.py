@@ -18,8 +18,6 @@ class Neuron:
     # Use the sigmoid activation function.
     # Use the defaults for the function arguments.
     def train(self, learning_rate=0.01, batch_size=10, epochs=200):
-        # TODO: do it manually instead of using numpy.
-
         # create some matrixes
         features_matrix = np.matrix([example["features"] for example in self.examples])
         labels_matrix = np.matrix([example["label"] for example in self.examples]).T
@@ -41,13 +39,15 @@ class Neuron:
                 # Multiply features x weighs
                 matrix_mult = features_mb @ self.weights
 
-                output = self.sigmoid(matrix_mult)
+                y_hat = self.sigmoid(matrix_mult)
                 # Calculate loss function
-                loss = self.cross_entropy(output, labels_mb.T)
+                loss = self.cross_entropy(labels_mb.T, y_hat)
                 print("Loss for epoch "+str(epoch)+": "+str(loss))
 
-                #calculate the gradients based on loss:
-
+                # calculate the gradients per weigh i
+                gradients = self.__find_gradients(features_mb, labels_mb.T, y_hat)
+                self.weights = self.weights - learning_rate*gradients
+                continue
 
 
 
@@ -56,14 +56,20 @@ class Neuron:
         return 1/(1 + np.exp(-value))
 
     @staticmethod
-    def cross_entropy(y_hat, y):
+    def cross_entropy(y, y_hat):
         fp = y @ np.log(y_hat.T) + (1 - y_hat)
         return fp @ np.log(1 - y_hat).T
+
+    def __find_gradients(self, features, labels, predictions):
+        gradient = ((labels - predictions) @ features)/len(predictions)
+        return gradient
 
     # Return the probability—not the corresponding 0 or 1 label.
     def predict(self, features):
         # Write your code here.
         pass
+
+
 
 
 class TestingCases(unittest.TestCase):

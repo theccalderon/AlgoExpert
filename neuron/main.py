@@ -19,19 +19,20 @@ class Neuron:
     # Use the defaults for the function arguments.
     def train(self, learning_rate=0.01, batch_size=10, epochs=200):
         # create some matrixes
-        features_matrix = np.matrix([example["features"] for example in self.examples])
-        labels_matrix = np.matrix([example["label"] for example in self.examples]).T
+        features_matrix = np.array([example["features"] for example in self.examples])
+        labels_matrix = np.array([example["label"] for example in self.examples]).T
         # add bias
-        features_matrix = np.insert(features_matrix, 3, 0, axis=1)
+        features_matrix = np.insert(features_matrix, 3, 1, axis=1)
 
         # We got to go through all epochs
         for epoch in range(epochs):
             # For each epoch, grab random the minibatch
             previous_index = 0
             next_index = batch_size
+
             while next_index <= len(self.examples):
-                np.random.shuffle(features_matrix)
-                np.random.shuffle(labels_matrix)
+                # np.random.shuffle(features_matrix)
+                # np.random.shuffle(labels_matrix)
                 features_mb = features_matrix[previous_index:next_index]
                 labels_mb = labels_matrix[previous_index:next_index]
                 previous_index += batch_size
@@ -41,33 +42,35 @@ class Neuron:
 
                 y_hat = self.sigmoid(matrix_mult)
                 # Calculate loss function
-                loss = self.cross_entropy(labels_mb.T, y_hat)
-                print("Loss for epoch "+str(epoch)+": "+str(loss))
+                # loss = self.cross_entropy(labels_mb.T, y_hat)
 
                 # calculate the gradients per weigh i
-                gradients = self.__find_gradients(features_mb, labels_mb.T, y_hat)
+                gradients = self.__find_gradients(features_mb, labels_mb, y_hat, batch_size=batch_size)
+                # update weighs
                 self.weights = self.weights - learning_rate*gradients
-                continue
-
 
 
     @staticmethod
     def sigmoid(value):
         return 1/(1 + np.exp(-value))
 
-    @staticmethod
-    def cross_entropy(y, y_hat):
-        fp = y @ np.log(y_hat.T) + (1 - y_hat)
-        return fp @ np.log(1 - y_hat).T
-
-    def __find_gradients(self, features, labels, predictions):
-        gradient = ((labels - predictions) @ features)/len(predictions)
+    def __find_gradients(self, features, labels, predictions, **kwargs):
+        if kwargs['batch_size']:
+            gradient = ((predictions - labels).T @ features) / kwargs['batch_size']
+        else:
+            gradient = ((predictions - labels).T @ features) / len(predictions)
         return gradient
 
     # Return the probability—not the corresponding 0 or 1 label.
     def predict(self, features):
         # Write your code here.
-        pass
+        # forward pass
+        features_matrix = np.array(features)
+        features_matrix = np.insert(features_matrix, 3, 1, axis=0)
+        matrix_mult = features_matrix @ self.weights.T
+
+        y_hat = self.sigmoid(matrix_mult)
+        return y_hat
 
 
 
